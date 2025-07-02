@@ -12,14 +12,23 @@ with order_details as (
         o.status_friendly,
         o.total_amount,
         -- Product details
-        string_agg(
-            concat(pr.product_name, ' (', oi.quantity, 'x)'), 
-            ', '
-        ) as products_ordered,
+        stuff((
+            select ', ' + concat(pr2.product_name, ' (', oi2.quantity, 'x)')
+            from {{ ref('stg_order_items') }} oi2
+            join {{ ref('stg_products') }} pr2 on oi2.product_id = pr2.product_id
+            where oi2.order_id = o.order_id
+            for xml path('')
+        ), 1, 2, '') as products_ordered,
         sum(oi.quantity) as total_items,
         count(distinct oi.product_id) as unique_products,
         -- Category breakdown
-        string_agg(distinct pr.category, ', ') as categories
+        stuff((
+            select distinct ', ' + pr3.category
+            from {{ ref('stg_order_items') }} oi3
+            join {{ ref('stg_products') }} pr3 on oi3.product_id = pr3.product_id
+            where oi3.order_id = o.order_id
+            for xml path('')
+        ), 1, 2, '') as categories
     from {{ ref('stg_orders') }} o
     join {{ ref('stg_customers') }} c on o.customer_id = c.customer_id
     join {{ ref('stg_order_items') }} oi on o.order_id = oi.order_id
@@ -57,4 +66,3 @@ select
         else 'Very Large Order'
     end as order_size_category
 from order_details
-order by order_date desc

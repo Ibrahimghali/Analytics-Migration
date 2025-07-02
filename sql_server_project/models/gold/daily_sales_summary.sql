@@ -40,4 +40,3 @@ sales_with_trends as (
 )
 
 select * from sales_with_trends
-order by order_date_only desc

@@ -5,12 +5,11 @@ with product_performance as (
         p.product_id,
         p.product_name,
         p.category,
+        p.category_group,
         p.price,
         p.cost,
         p.profit_margin,
         p.profit_margin_percent,
-        p.stock_quantity,
-        p.stock_status,
         coalesce(sum(oi.quantity), 0) as total_quantity_sold,
         coalesce(sum(oi.total_price), 0) as total_revenue,
         coalesce(sum(oi.quantity * p.cost), 0) as total_cost,
@@ -32,13 +31,11 @@ with product_performance as (
         p.product_id,
         p.product_name,
         p.category,
+        p.category_group,
         p.price,
         p.cost,
         p.profit_margin,
-        p.profit_margin_percent,
-        p.stock_quantity,
-        p.stock_status
+        p.profit_margin_percent
 )
 
 select * from product_performance
-order by total_revenue desc

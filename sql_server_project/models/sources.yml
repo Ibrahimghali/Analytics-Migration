@@ -1,0 +1,69 @@
+version: 2
+
+sources:
+  - name: raw_data
+    description: "Raw source tables from SQL Server"
+    database: analytics_migration
+    schema: dbo
+    tables:
+      - name: customers
+        description: "Customer information"
+        columns:
+          - name: customer_id
+            description: "Unique customer identifier"
+            tests:
+              - unique
+              - not_null
+          - name: email
+            description: "Customer email address"
+            tests:
+              - unique
+              - not_null
+
+      - name: products
+        description: "Product catalog"
+        columns:
+          - name: product_id
+            description: "Unique product identifier"
+            tests:
+              - unique
+              - not_null
+          - name: product_name
+            tests:
+              - not_null
+
+      - name: orders
+        description: "Customer orders"
+        columns:
+          - name: order_id
+            description: "Unique order identifier"
+            tests:
+              - unique
+              - not_null
+          - name: customer_id
+            description: "Reference to customer"
+            tests:
+              - not_null
+              - relationships:
+                  to: source('raw_data', 'customers')
+                  field: customer_id
+
+      - name: order_items
+        description: "Individual items within orders"
+        columns:
+          - name: order_item_id
+            tests:
+              - unique
+              - not_null
+          - name: order_id
+            tests:
+              - not_null
+              - relationships:
+                  to: source('raw_data', 'orders')
+                  field: order_id
+          - name: product_id
+            tests:
+              - not_null
+              - relationships:
+                  to: source('raw_data', 'products')
+                  field: product_id

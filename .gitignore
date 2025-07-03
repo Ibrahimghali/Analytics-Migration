@@ -2,3 +2,4 @@ secret
 .venv
 docs
 logs
+.vscode

@@ -3,8 +3,8 @@ version: 2
 sources:
   - name: raw_data
     description: "Raw source tables from SQL Server"
-    database: dbt_analytics
-    schema: raw_data
+    database: analytics_migration
+    schema: dbo
     tables:
       - name: customers
         description: "Customer information"

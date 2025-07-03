@@ -1,7 +1,7 @@
-# dbt SQL Server Setup on Windows
+# dbt SQL Server Analytics Platform on Windows
 
 ## Overview
-Successfully configured dbt to connect to Microsoft SQL Server on Windows using Python 3.13 with all dependency and compatibility issues resolved.
+Complete dbt analytics platform successfully configured to connect to Microsoft SQL Server on Windows using Python 3.13. Implements a Bronze-Silver-Gold data architecture with comprehensive business intelligence transformations for retail analytics.
 
 ## Environment Details
 - **OS**: Windows 11
@@ -50,7 +50,7 @@ sql_server_project:
 - `windows_login: true` - Use Windows Authentication
 - `encrypt: false` - Disable SSL encryption for local connections
 - `trust_cert: true` - Trust the server certificate
-- `database: analytics_migration` - Custom database (created during setup)
+- `database: dbt_analytics` - Analytics database with Bronze-Silver-Gold architecture
 
 ## Setup Process
 
@@ -73,12 +73,26 @@ pip install azure-storage-blob==12.24.0
 
 ### 3. Database Creation
 ```sql
-sqlcmd -E -S localhost -Q "CREATE DATABASE analytics_migration;"
+-- Create analytics database with proper schema structure
+sqlcmd -E -S localhost -Q "CREATE DATABASE dbt_analytics;"
+sqlcmd -E -S localhost -d dbt_analytics -Q "CREATE SCHEMA raw_data;"
+sqlcmd -E -S localhost -d dbt_analytics -Q "CREATE SCHEMA silver;"
+sqlcmd -E -S localhost -d dbt_analytics -Q "CREATE SCHEMA gold;"
+sqlcmd -E -S localhost -d dbt_analytics -Q "CREATE SCHEMA snapshots;"
 ```
 
 ### 4. dbt Project Initialization
 ```powershell
 dbt init sql_server_project
+```
+
+### 5. Source Data Setup
+```powershell
+# Run SQL Server initialization scripts
+# Execute scripts in sql_server_init/ folder:
+# - 00_create_database.sql
+# - 01_create_source_tables.sql  
+# - 02_insert_sample_data.sql
 ```
 
 ## Troubleshooting Issues Resolved
@@ -92,8 +106,8 @@ dbt init sql_server_project
 - **Solution**: Set `encrypt: false` and `trust_cert: true`
 
 ### 3. Database Access
-- **Issue**: Database "analytics_migration" didn't exist
-- **Solution**: Created database using `sqlcmd`
+- **Issue**: Database "dbt_analytics" didn't exist
+- **Solution**: Created database with proper schema structure using `sqlcmd`
 
 ### 4. Windows Authentication
 - **Issue**: Initial connection failures
@@ -113,32 +127,171 @@ dbt compile
 
 ### Run Models
 ```powershell
+# Run all models (Silver views + Gold tables)
 dbt run
+
+# Run specific layers
+dbt run --select silver.*    # Only Silver layer views
+dbt run --select gold.*     # Only Gold layer tables
+
+# Run snapshots (Slowly Changing Dimensions)
+dbt snapshot
+
+# Run tests
+dbt test
+
+# Generate documentation
+dbt docs generate
+dbt docs serve
 ```
 
-## Project Structure
+## Project Architecture
+
+### 🏗️ Bronze-Silver-Gold Data Architecture
+
 ```
-sql_server_project/
-├── dbt_project.yml
-├── models/
-│   └── example/
-│       ├── my_first_dbt_model.sql
-│       ├── my_second_dbt_model.sql
-│       └── schema.yml
-├── analyses/
-├── tests/
-├── snapshots/
-├── macros/
-└── seeds/
+📁 dbt_analytics (Database)
+├── 📁 raw_data (Bronze Layer) - Source Tables
+│   ├── 📋 customers           # Customer master data
+│   ├── 📋 products            # Product catalog
+│   ├── 📋 orders              # Order headers
+│   └── 📋 order_items         # Order line items
+│
+├── 📁 silver (Silver Layer) - Views (Data Cleaning)
+│   ├── 👁️ stg_customers       # Cleaned customer data + full_name
+│   ├── 👁️ stg_products        # Cleaned products + profit margins + categories
+│   ├── 👁️ stg_orders          # Cleaned orders + date parsing + status mapping
+│   └── 👁️ stg_order_items     # Cleaned order items + total price calculations
+│
+├── 📁 gold (Gold Layer) - Tables (Business Intelligence)
+│   ├── 📋 customer_analytics      # Customer segmentation & lifetime value
+│   ├── 📋 product_performance     # Product sales & profitability analysis
+│   ├── 📋 daily_sales_summary     # Time-series sales metrics & trends
+│   └── 📋 order_details_enhanced  # Comprehensive order analysis
+│
+└── 📁 snapshots (SCD Tables) - Historical Tracking
+    ├── 📋 orders_snapshot      # Order change history
+    └── 📋 products_snapshot    # Product change history
+```
+
+### 🔄 Data Transformation Flow
+
+```
+Raw Data (Bronze)           Silver Layer (Cleaning)         Gold Layer (Analytics)
+━━━━━━━━━━━━━━━            ━━━━━━━━━━━━━━━━━━━━━━━            ━━━━━━━━━━━━━━━━━━━━
+customers                → stg_customers + enrichment    → customer_analytics
+products                 → stg_products + calculations   → product_performance  
+orders                   → stg_orders + parsing         → daily_sales_summary
+order_items              → stg_order_items + totals     → order_details_enhanced
 ```
 
 ## Status
-✅ **COMPLETE**: dbt is successfully configured and connected to SQL Server
-✅ **TESTED**: All checks pass with `dbt debug`
-✅ **REPRODUCIBLE**: Environment documented in requirements.txt
+✅ **COMPLETE**: Full Bronze-Silver-Gold analytics platform operational
+✅ **TESTED**: All models, tests, and snapshots successfully running
+✅ **BUSINESS READY**: Executive dashboards and analytics available
+✅ **DOCUMENTED**: Comprehensive transformation logic and data lineage
+✅ **REPRODUCIBLE**: Complete environment and setup documentation
 
-## Next Steps
-1. Develop dbt models for your analytics use case
-2. Set up source tables in the `analytics_migration` database
-3. Create transformations and tests
-4. Consider setting up CI/CD pipeline for production
+## Business Intelligence Capabilities
+
+### 📊 Available Analytics
+1. **Customer Segmentation**: RFM analysis, lifecycle status, geographic insights
+2. **Product Analytics**: Profitability analysis, sales performance, category trends
+3. **Sales Performance**: Daily trends, growth analysis, operational KPIs
+4. **Order Intelligence**: Composition analysis, complexity metrics, size classification
+
+### 🎯 Key Business Metrics
+- **Customer Lifetime Value (CLV)** and retention analysis
+- **Product profitability** and margin analysis
+- **Sales growth trends** and operational efficiency
+- **Order completion rates** and fulfillment metrics
+
+### 📈 Reporting Capabilities
+- **Executive Dashboards**: High-level KPIs and trends
+- **Operational Reports**: Daily sales, completion rates, customer activity
+- **Strategic Analysis**: Customer segmentation, product performance, growth analysis
+- **Historical Tracking**: Slowly changing dimensions for trend analysis
+
+## Next Steps & Recommendations
+
+### Immediate Actions
+1. **Connect BI Tools**: Power BI, Tableau, or Excel to Gold layer tables
+2. **Set Up Scheduling**: Implement automated daily/hourly dbt runs
+3. **Create Alerts**: Monitor data quality and business KPIs
+4. **User Training**: Educate business users on available analytics
+
+### Advanced Features
+1. **Real-time Analytics**: Consider streaming data integration
+2. **Machine Learning**: Customer churn prediction, demand forecasting
+3. **Advanced Segmentation**: Implement more sophisticated RFM analysis
+4. **Data Governance**: Add data lineage documentation and data cataloging
+
+### Production Deployment
+1. **CI/CD Pipeline**: Automated testing and deployment
+2. **Environment Management**: Dev, Test, Production environments
+3. **Monitoring**: Data quality monitoring and alerting
+4. **Security**: Role-based access control and data encryption
+
+## 🥈 Silver Layer Transformations
+
+### Data Cleaning & Standardization
+- **Text Normalization**: `TRIM()`, `UPPER()`, `LOWER()` for consistent formatting
+- **Email Standardization**: Lowercase + trimmed email addresses
+- **Address Cleaning**: Trimmed and standardized address components
+- **Status Mapping**: Raw status codes → business-friendly descriptions
+
+### Data Enrichment
+- **Customer Enhancement**: `first_name + ' ' + last_name as full_name`
+- **Product Calculations**: `price - cost as profit_margin`, profit percentages
+- **Date Parsing**: Extract year, month, day, day-of-week from dates
+- **Category Grouping**: Electronics → Tech, Furniture → Home
+
+### Business Logic
+- **Safe Calculations**: Division by zero protection in profit margin calculations
+- **Data Validation**: Price consistency checks and validation flags
+- **Status Standardization**: PENDING → Awaiting Processing, COMPLETED → Fulfilled
+
+## 🥇 Gold Layer Analytics
+
+### Customer Intelligence (`customer_analytics`)
+- **Behavioral Metrics**: Total orders, lifetime value, average order value
+- **Segmentation**: No Orders, One-Time, Regular, High Value customers
+- **Lifecycle Status**: Active (30 days), At Risk (90 days), Churned
+- **Geographic Analysis**: Performance by city and state
+
+### Product Performance (`product_performance`)
+- **Sales Metrics**: Units sold, revenue, order frequency
+- **Profitability**: Total cost, profit, actual vs. theoretical margins
+- **Performance Tiers**: No Sales, Low, Medium, High performance categories
+- **Category Analysis**: Performance by product category groups
+
+### Sales Analytics (`daily_sales_summary`)
+- **Time-Series Metrics**: Daily revenue, order volume, customer reach
+- **Operational KPIs**: Order completion rates and fulfillment efficiency
+- **Growth Analysis**: Day-over-day revenue growth calculations
+- **Trend Analysis**: Previous period comparisons using window functions
+
+### Order Intelligence (`order_details_enhanced`)
+- **Order Composition**: Concatenated product lists with quantities
+- **Complexity Metrics**: Total items, unique products, category diversity
+- **Order Classification**: Small, Medium, Large, Very Large order categories
+- **Advanced SQL**: String aggregation using `STUFF()` and `FOR XML PATH`
+
+## 🧪 Testing & Quality Assurance
+
+### Custom Macros
+- **`test_positive_values`**: Ensures numeric fields contain only positive values
+- **`test_email_format`**: Validates email address formats
+
+### Data Tests
+- **Source Tests**: Unique keys, not null constraints, referential integrity
+- **Business Logic Tests**: Order total consistency, recent orders validation
+- **Custom Tests**: Email format validation, positive value checks
+
+## 📸 Slowly Changing Dimensions (Snapshots)
+
+### Historical Tracking
+- **Orders Snapshot**: Track changes in order status and amounts over time
+- **Products Snapshot**: Monitor product price changes and catalog updates
+- **SCD Type 2**: Full history with valid_from/valid_to timestamps
+- **Change Detection**: Automatic detection of changes using `check` strategy

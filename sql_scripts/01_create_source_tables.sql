@@ -3,11 +3,11 @@
 -- Run this script in SQL Server Management Studio
 -- ================================================
 
-USE analytics_migration;
+USE dbt_analytics;
 GO
 
 -- Create Customers table
-CREATE TABLE customers (
+CREATE TABLE raw_data.customers (
     customer_id INT PRIMARY KEY IDENTITY(1,1),
     first_name NVARCHAR(50) NOT NULL,
     last_name NVARCHAR(50) NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE customers (
 );
 
 -- Create Products table
-CREATE TABLE products (
+CREATE TABLE raw_data.products (
     product_id INT PRIMARY KEY IDENTITY(1,1),
     product_name NVARCHAR(100) NOT NULL,
     category NVARCHAR(50) NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE products (
 );
 
 -- Create Orders table
-CREATE TABLE orders (
+CREATE TABLE raw_data.orders (
     order_id INT PRIMARY KEY IDENTITY(1,1),
     customer_id INT NOT NULL,
     order_date DATETIME2 DEFAULT GETDATE(),
@@ -43,11 +43,11 @@ CREATE TABLE orders (
     shipping_address NVARCHAR(200),
     created_at DATETIME2 DEFAULT GETDATE(),
     updated_at DATETIME2 DEFAULT GETDATE(),
-    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+    FOREIGN KEY (customer_id) REFERENCES raw_data.customers(customer_id)
 );
 
 -- Create Order Items table
-CREATE TABLE order_items (
+CREATE TABLE raw_data.order_items (
     order_item_id INT PRIMARY KEY IDENTITY(1,1),
     order_id INT NOT NULL,
     product_id INT NOT NULL,
@@ -55,12 +55,12 @@ CREATE TABLE order_items (
     unit_price DECIMAL(10,2) NOT NULL,
     total_price DECIMAL(10,2) NOT NULL,
     created_at DATETIME2 DEFAULT GETDATE(),
-    FOREIGN KEY (order_id) REFERENCES orders(order_id),
-    FOREIGN KEY (product_id) REFERENCES products(product_id)
+    FOREIGN KEY (order_id) REFERENCES raw_data.orders(order_id),
+    FOREIGN KEY (product_id) REFERENCES raw_data.products(product_id)
 );
 
 -- Create Payments table
-CREATE TABLE payments (
+CREATE TABLE raw_data.payments (
     payment_id INT PRIMARY KEY IDENTITY(1,1),
     order_id INT NOT NULL,
     payment_method NVARCHAR(50) NOT NULL,
@@ -68,7 +68,7 @@ CREATE TABLE payments (
     payment_date DATETIME2 DEFAULT GETDATE(),
     payment_status NVARCHAR(20) DEFAULT 'completed',
     created_at DATETIME2 DEFAULT GETDATE(),
-    FOREIGN KEY (order_id) REFERENCES orders(order_id)
+    FOREIGN KEY (order_id) REFERENCES raw_data.orders(order_id)
 );
 
 PRINT 'Source tables created successfully!';

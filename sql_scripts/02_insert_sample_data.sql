@@ -3,11 +3,11 @@
 -- Run this after creating the tables
 -- ================================================
 
-USE analytics_migration;
+USE dbt_analytics;
 GO
 
 -- Insert sample customers
-INSERT INTO customers (first_name, last_name, email, phone, address, city, state, zip_code) VALUES
+INSERT INTO raw_data.customers (first_name, last_name, email, phone, address, city, state, zip_code) VALUES
 ('John', 'Smith', 'john.smith@email.com', '555-0123', '123 Main St', 'New York', 'NY', '10001'),
 ('Jane', 'Doe', 'jane.doe@email.com', '555-0124', '456 Oak Ave', 'Los Angeles', 'CA', '90210'),
 ('Bob', 'Johnson', 'bob.johnson@email.com', '555-0125', '789 Pine Rd', 'Chicago', 'IL', '60601'),
@@ -18,7 +18,7 @@ INSERT INTO customers (first_name, last_name, email, phone, address, city, state
 ('Grace', 'Wilson', 'grace.wilson@email.com', '555-0130', '258 Spruce St', 'San Diego', 'CA', '92101');
 
 -- Insert sample products
-INSERT INTO products (product_name, category, price, cost, stock_quantity) VALUES
+INSERT INTO raw_data.products (product_name, category, price, cost, stock_quantity) VALUES
 ('Laptop Pro 15"', 'Electronics', 1299.99, 899.99, 50),
 ('Wireless Mouse', 'Electronics', 29.99, 15.99, 200),
 ('Office Chair', 'Furniture', 299.99, 199.99, 30),
@@ -31,7 +31,7 @@ INSERT INTO products (product_name, category, price, cost, stock_quantity) VALUE
 ('Tablet 10"', 'Electronics', 399.99, 259.99, 40);
 
 -- Insert sample orders
-INSERT INTO orders (customer_id, order_date, status, total_amount, shipping_address) VALUES
+INSERT INTO raw_data.orders (customer_id, order_date, status, total_amount, shipping_address) VALUES
 (1, '2025-06-01 10:30:00', 'completed', 1329.98, '123 Main St, New York, NY 10001'),
 (2, '2025-06-02 14:15:00', 'completed', 299.99, '456 Oak Ave, Los Angeles, CA 90210'),
 (3, '2025-06-03 09:45:00', 'shipped', 529.98, '789 Pine Rd, Chicago, IL 60601'),
@@ -42,7 +42,7 @@ INSERT INTO orders (customer_id, order_date, status, total_amount, shipping_addr
 (8, '2025-06-08 08:20:00', 'completed', 1699.97, '258 Spruce St, San Diego, CA 92101');
 
 -- Insert sample order items
-INSERT INTO order_items (order_id, product_id, quantity, unit_price, total_price) VALUES
+INSERT INTO raw_data.order_items (order_id, product_id, quantity, unit_price, total_price) VALUES
 -- Order 1: Laptop + Mouse
 (1, 1, 1, 1299.99, 1299.99),
 (1, 2, 1, 29.99, 29.99),
@@ -69,7 +69,7 @@ INSERT INTO order_items (order_id, product_id, quantity, unit_price, total_price
 (8, 10, 1, 399.99, 399.99);
 
 -- Insert sample payments
-INSERT INTO payments (order_id, payment_method, payment_amount, payment_date, payment_status) VALUES
+INSERT INTO raw_data.payments (order_id, payment_method, payment_amount, payment_date, payment_status) VALUES
 (1, 'Credit Card', 1329.98, '2025-06-01 10:35:00', 'completed'),
 (2, 'PayPal', 299.99, '2025-06-02 14:20:00', 'completed'),
 (3, 'Credit Card', 529.98, '2025-06-03 09:50:00', 'completed'),

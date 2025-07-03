@@ -34,3 +34,13 @@ models:
     # Config indicated by + and applies to all files under models/example/
     example:
       +materialized: view
+    
+    # Silver layer models - staging/cleaned data
+    silver:
+      +materialized: view
+      +schema: silver
+    
+    # Gold layer models - business logic/marts
+    gold:
+      +materialized: table
+      +schema: gold

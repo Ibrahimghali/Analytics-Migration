@@ -3,8 +3,8 @@ version: 2
 sources:
   - name: raw_data
     description: "Raw source tables from SQL Server"
-    database: analytics_migration
-    schema: dbo
+    database: dbt_analytics
+    schema: raw_data
     tables:
       - name: customers
         description: "Customer information"
@@ -19,6 +19,7 @@ sources:
             tests:
               - unique
               - not_null
+          
 
       - name: products
         description: "Product catalog"

@@ -1,0 +1,34 @@
+stages:
+  - test
+  - deploy
+
+variables:
+  DBT_PROFILES_DIR: "$CI_PROJECT_DIR"
+  DBT_PROJECT_DIR: "$CI_PROJECT_DIR/sql_server_project"
+
+before_script:
+  - pip install -r requirements.txt
+
+# Test your dbt models
+test_models:
+  stage: test
+  script:
+    - cd $DBT_PROJECT_DIR
+    - dbt deps
+    - dbt compile
+    - dbt test
+  only:
+    - merge_requests
+    - main
+
+# Deploy your models
+deploy_models:
+  stage: deploy
+  script:
+    - cd $DBT_PROJECT_DIR
+    - dbt deps
+    - dbt run
+    - dbt test
+  only:
+    - main
+  when: manual

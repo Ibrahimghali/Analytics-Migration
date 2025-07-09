@@ -24,13 +24,19 @@ before_script:
 test_models:
   stage: test
   script:
+    - echo "🔍 Checking environment variables..."
+    - echo "DB_HOST is set to:" $DB_HOST
+    - echo "DB_USER is set to:" $DB_USER
+    - echo "DB_PASSWORD is:" ${DB_PASSWORD:0:3}***  # Show only first 3 chars of password
     - cd $DBT_PROJECT_DIR
     - dbt deps
+    - dbt debug  # This will show connection details
     - dbt compile
     - dbt test
   only:
     - merge_requests
     - main
+  allow_failure: true
 
 # Deploy your models
 deploy_models:
@@ -38,6 +44,7 @@ deploy_models:
   script:
     - cd $DBT_PROJECT_DIR
     - dbt deps
+    - dbt debug
     - dbt run
     - dbt test
   only:

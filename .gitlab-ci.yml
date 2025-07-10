@@ -30,7 +30,7 @@ validate_project:
     - echo "DB_PASSWORD:" ${DB_PASSWORD:0:3}***
     - cd $DBT_PROJECT_DIR
     - dbt deps
-    - dbt parse  # ✅ This works without database
+    - dbt parse  
     - echo "✅ dbt project syntax is valid!"
   only:
     - merge_requests

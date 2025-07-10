@@ -32,6 +32,8 @@ validate_project:
     - dbt deps
     - dbt parse  
     - echo "✅ dbt project syntax is valid!"
+
+    
   only:
     - merge_requests
     - main
